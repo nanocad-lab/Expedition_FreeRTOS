@@ -109,12 +109,9 @@
 /* Scheduler include files. */
 #include "FreeRTOS.h"
 #include "task.h"
-
-/* GPIO port parameters */
-volatile unsigned int * const GPIO_data = (unsigned int *)0x44001000;
-volatile unsigned int * const GPIO_direction = (unsigned int *)0x44001004;
-volatile unsigned int * const GPIO_mask = (unsigned int *)0x44001008;
-
+#include "mmap.h"
+#include "myio.h"
+#include "gpio_set.h"
 
 /* Task functions */
 void vTestKernel(void *pvAddress);
@@ -124,15 +121,14 @@ void vTestKernel2(void *pvAddress);
 
 void main( void )
 {
-    volatile void *addr1 = 0x24000110;
-    volatile void *addr2 = 0x24000114;
+    volatile void *addr1 = (volatile void *)pulRAMBUF_BEGIN;
+    volatile void *addr2 = (volatile void *)0x24000114;
     
     /* GPIO port initalization */
-    *GPIO_mask = 0xffffffff;
-    *GPIO_direction = 0xffffffff;
+    init_gpio();
 
     /* create two tasks */
-    xTaskCreate(vTestKernel, "Task1", 50, addr1, 1, NULL);
+    xTaskCreate(vTestKernel, "Task1", 200, addr1, 1, NULL);
     xTaskCreate(vTestKernel2, "Task2", 50, addr2, 1, NULL);
 
 	/* Start the scheduler running the tasks and co-routines just created. */
@@ -146,25 +142,19 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
-    volatile int count = 0;
-    volatile unsigned long *plAddr = (unsigned long *)pvAddress;
+    myprintf("Hell, my name is Zimin Wang.\r\n");
     while (1) {
-        *plAddr = count++;
         // generate an interrupt pulse which lasts for 10ms
-        *GPIO_data = 0x1;
-        vTaskDelay(10 / portTICK_RATE_MS);
-        *GPIO_data = 0x0;
-
-        vTaskDelay(10000 / portTICK_RATE_MS);
+        send_print_req();
+        wait_print_ack();
+        vTaskDelay(50000 / portTICK_RATE_MS);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
     volatile int count = 0x300;
-    volatile unsigned long *plAddr = (unsigned long *)pvAddress;
     while (1) {
-        *plAddr = count++;
-        vTaskDelay(10000 / portTICK_RATE_MS);
+        vTaskDelay(50000 / portTICK_RATE_MS);
     }
 }

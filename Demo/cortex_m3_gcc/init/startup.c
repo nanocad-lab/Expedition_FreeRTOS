@@ -120,6 +120,8 @@ ResetISR(void)
 static void
 NmiSR(void)
 {
+    // write error code to a certain address
+    panic("Enter NMI handler.\r\n");
     //
     // Enter an infinite loop.
     //
@@ -138,6 +140,8 @@ NmiSR(void)
 void
 FaultISR(void)
 {
+    // write message
+    panic("Enter hard fault handler.\r\n");
     //
     // Enter an infinite loop.
     //

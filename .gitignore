@@ -1,1 +1,13 @@
-Demo/cortex_m3_gcc/build/*
+# ignore dependency files
+Demo/cortex_m3_gcc/build/*.d
+
+# ignore object files
+Demo/cortex_m3_gcc/build/*.o
+
+# ignore hex and binary images
+Demo/cortex_m3_gcc/build/*.bin
+Demo/cortex_m3_gcc/build/*.hex
+
+# ignore the elf
+Demo/cortex_m3_gcc/build/system
+

@@ -112,7 +112,9 @@
 #include "mmap.h"
 #include "myio.h"
 #include "gpio_set.h"
+#include "locks.h"
 
+void prvHardwareSetup(void);
 /* Task functions */
 void vTestKernel(void *pvAddress);
 void vTestKernel2(void *pvAddress);
@@ -121,15 +123,10 @@ void vTestKernel2(void *pvAddress);
 
 void main( void )
 {
-    volatile void *addr1 = (volatile void *)pulRAMBUF_BEGIN;
-    volatile void *addr2 = (volatile void *)0x24000114;
-    
-    /* GPIO port initalization */
-    init_gpio();
-
+    //prvHardwareSetup();
     /* create two tasks */
-    xTaskCreate(vTestKernel, "Task1", 200, addr1, 1, NULL);
-    xTaskCreate(vTestKernel2, "Task2", 50, addr2, 1, NULL);
+    xTaskCreate(vTestKernel, "Task1", 200, NULL, 1, NULL);
+    xTaskCreate(vTestKernel2, "Task2", 50, NULL, 1, NULL);
 
 	/* Start the scheduler running the tasks and co-routines just created. */
 	vTaskStartScheduler();
@@ -142,19 +139,45 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
-    myprintf("Hell, my name is Zimin Wang.\r\n");
     while (1) {
         // generate an interrupt pulse which lasts for 10ms
-        send_print_req();
-        wait_print_ack();
-        vTaskDelay(50000 / portTICK_RATE_MS);
+        //myprintf("Hello, World.\r\n");
+        volatile unsigned long *GPIO_DATA = 0x44001000;
+        volatile unsigned long *GPIO_DIR = 0x44001000;
+        volatile unsigned long *GPIO_MASK = 0x44001000;
+        *GPIO_MASK = ~0L;
+        *GPIO_DIR = ~0L;
+        *GPIO_DATA = 1;
+        *GPIO_DATA = 0;
+        vTaskDelay(10000 / portTICK_RATE_MS);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
-    volatile int count = 0x300;
     while (1) {
-        vTaskDelay(50000 / portTICK_RATE_MS);
+        vTaskDelay(10000 / portTICK_RATE_MS);
     }
+}
+
+void prvHardwareSetup(void) {
+    // create mutex and semaphore
+    vSemaphoreCreateBinary(xBinarySemaphore);
+    xMutex = xSemaphoreCreateMutex();
+    xSemaphoreTake(xBinarySemaphore, 0);
+    // set GPIO direction
+    volatile unsigned long *GPIO_DIRECTION = 0x44001004;
+    volatile unsigned long *GPIO_MASK = 0x44001008;
+    volatile unsigned long *GPIO_DATA = 0x44001000;
+    *GPIO_DIRECTION = 0xffffffff;
+    *GPIO_MASK = 0xffffffff;
+    *GPIO_DATA = 0;
+    // set GPIO interrupt priority
+    volatile unsigned long *GPIO_INT_PRI = 0xE000E401;
+    *GPIO_INT_PRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
+    // enable GPIO interrupt
+    volatile unsigned long *GPIO_INT_NUM = 0x4400100C;
+    volatile unsigned long *GPIO_INT_EN = 0x44001304;
+    *GPIO_INT_NUM = 2;
+    *GPIO_INT_EN = 1;
 }

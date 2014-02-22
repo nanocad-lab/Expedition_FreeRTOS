@@ -141,7 +141,7 @@ void vTestKernel(void *pvAddress)
 {
     while (1) {
         // generate an interrupt pulse which lasts for 10ms
-        myprintf("Hello, World.\r\n");
+        myprintf("Test printf successful!.\r\n");
         vTaskDelay(20000 / portTICK_RATE_MS);
     }
 }
@@ -160,13 +160,4 @@ void prvHardwareSetup(void) {
     xSemaphoreTake(xBinarySemaphore, 0);
     // set GPIO direction
     init_gpio();
-    
-    // set GPIO interrupt priority
-    volatile unsigned long *GPIO_INT_PRI = 0xE000E401;
-    *GPIO_INT_PRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;
-    // enable GPIO interrupt
-    volatile unsigned long *GPIO_INT_NUM = 0x4400100C;
-    volatile unsigned long *GPIO_INT_EN = 0x44001304;
-    *GPIO_INT_NUM = 2;
-    *GPIO_INT_EN = 1;
 }

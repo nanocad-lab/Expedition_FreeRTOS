@@ -14,8 +14,6 @@ void send_print_req(void) {
     // generate an interrupt signal
     *pulGPIO_DATA |= (1U << PRINT_PORT);
     *pulGPIO_DATA &= (~(1U << PRINT_PORT));
-    // set direction as read, set interrupt handler
-    *pulGPIO_DIRECTION &= (~(1U << PRINT_PORT));
 
 }
 

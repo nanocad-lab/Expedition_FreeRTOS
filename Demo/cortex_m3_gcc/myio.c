@@ -5,6 +5,7 @@
 #include "myio.h"
 #include "semphr.h"
 #include "locks.h"
+#include "gpio_set.h"
 
 static union byte_chunk_union {
     unsigned long word;
@@ -38,9 +39,7 @@ static void impl_vprintf(const char *format, va_list args) {
         *addr++ = byte_chunk.word;
     } while (*str && addr < pulRAMBUF_END);
     // send a request signal to mbed
-    volatile unsigned long *GPIO_REQ = 0x44001000;
-    *GPIO_REQ = 1;
-    *GPIO_REQ = 0;
+    send_print_req();
 }
 
 void myprintf(const char *format, ...) {

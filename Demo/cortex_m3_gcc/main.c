@@ -123,7 +123,7 @@ void vTestKernel2(void *pvAddress);
 
 void main( void )
 {
-    //prvHardwareSetup();
+    prvHardwareSetup();
     /* create two tasks */
     xTaskCreate(vTestKernel, "Task1", 200, NULL, 1, NULL);
     xTaskCreate(vTestKernel2, "Task2", 50, NULL, 1, NULL);
@@ -141,22 +141,15 @@ void vTestKernel(void *pvAddress)
 {
     while (1) {
         // generate an interrupt pulse which lasts for 10ms
-        //myprintf("Hello, World.\r\n");
-        volatile unsigned long *GPIO_DATA = 0x44001000;
-        volatile unsigned long *GPIO_DIR = 0x44001000;
-        volatile unsigned long *GPIO_MASK = 0x44001000;
-        *GPIO_MASK = ~0L;
-        *GPIO_DIR = ~0L;
-        *GPIO_DATA = 1;
-        *GPIO_DATA = 0;
-        vTaskDelay(10000 / portTICK_RATE_MS);
+        myprintf("Hello, World.\r\n");
+        vTaskDelay(20000 / portTICK_RATE_MS);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
     while (1) {
-        vTaskDelay(10000 / portTICK_RATE_MS);
+        vTaskDelay(20000 / portTICK_RATE_MS);
     }
 }
 
@@ -166,12 +159,8 @@ void prvHardwareSetup(void) {
     xMutex = xSemaphoreCreateMutex();
     xSemaphoreTake(xBinarySemaphore, 0);
     // set GPIO direction
-    volatile unsigned long *GPIO_DIRECTION = 0x44001004;
-    volatile unsigned long *GPIO_MASK = 0x44001008;
-    volatile unsigned long *GPIO_DATA = 0x44001000;
-    *GPIO_DIRECTION = 0xffffffff;
-    *GPIO_MASK = 0xffffffff;
-    *GPIO_DATA = 0;
+    init_gpio();
+    
     // set GPIO interrupt priority
     volatile unsigned long *GPIO_INT_PRI = 0xE000E401;
     *GPIO_INT_PRI = configMAX_SYSCALL_INTERRUPT_PRIORITY;

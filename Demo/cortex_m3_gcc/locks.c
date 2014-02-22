@@ -1,3 +1,4 @@
+#include "myio.h"
 #include "locks.h"
 
 xSemaphoreHandle xBinarySemaphore;

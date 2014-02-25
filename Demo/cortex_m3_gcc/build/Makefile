@@ -44,7 +44,6 @@ SOURCES=main.c	\
       	tasks.c   \
       	port.c	\
 	heap_1.c \
-	mmap.c	\
 	myio.c	\
 	syscalls.c \
 	assert.c	\

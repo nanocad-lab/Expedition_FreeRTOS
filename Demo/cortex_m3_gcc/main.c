@@ -125,8 +125,8 @@ void main( void )
 {
     prvHardwareSetup();
     /* create two tasks */
-    xTaskCreate(vTestKernel, "Task1", 200, NULL, 1, NULL);
-    xTaskCreate(vTestKernel2, "Task2", 50, NULL, 1, NULL);
+    xTaskCreate(vTestKernel, "Task1", 512, NULL, 1, NULL);
+    xTaskCreate(vTestKernel2, "Task2", 128, NULL, 1, NULL);
 
 	/* Start the scheduler running the tasks and co-routines just created. */
 	vTaskStartScheduler();
@@ -139,17 +139,19 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
+    char line[80];
     while (1) {
         // generate an interrupt pulse which lasts for 10ms
-        myprintf("Test printf successful!.\r\n");
-        vTaskDelay(20000 / portTICK_RATE_MS);
+        myprintf("Please type whatever you want.\r\n");
+        myscanf("%s", line);
+        myprintf("You typed: %s\r\n", line);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
     while (1) {
-        vTaskDelay(20000 / portTICK_RATE_MS);
+        vTaskDelay(80000 / portTICK_RATE_MS);
     }
 }
 

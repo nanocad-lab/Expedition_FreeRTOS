@@ -1,6 +1,5 @@
 #include "FreeRTOS.h"
 #include "gpio_set.h"
-#include "mmap.h"
 
 /* GPIO port initialization */
 void init_gpio(void) {
@@ -25,12 +24,9 @@ void init_gpio(void) {
     *IRQ1_enable = 1UL << 1;
 }
 
-void send_print_req(void) {
+void send_req(void) {
     volatile unsigned long *req = GPIO_REQ_DATA;
     // generate an interrupt signal
     *req = 1UL;
     *req = 0UL;
-}
-
-void wait_print_ack(void) {
 }

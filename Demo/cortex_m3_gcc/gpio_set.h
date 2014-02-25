@@ -15,7 +15,6 @@
 #define IRQ_ENA         ( (unsigned long *)0xE000E100 )
 
 extern void init_gpio(void);
-extern void send_print_req(void);
-extern void wait_print_ack(void);
+extern void send_req(void);
 
 #endif

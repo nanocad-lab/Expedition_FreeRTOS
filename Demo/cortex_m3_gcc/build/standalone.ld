@@ -48,7 +48,3 @@ SECTIONS
   } >ram
 
 }
-
-PROVIDE(__HEAP_START = _end);
-PROVIDE(__HEAP_SIZE = 112K);
-PROVIDE(__HEAP_END = _end + __HEAP_SIZE);

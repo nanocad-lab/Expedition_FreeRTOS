@@ -13,8 +13,7 @@
 # applicable copyright laws.  All rights are reserved.  Any use in violation
 # of the foregoing restrictions may subject the user to criminal sanctions
 # under applicable laws, as well as to civil liability for the breach of the
-# terms and conditions of this license.
-#
+# terms and conditions of this license.  #
 # THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
 # OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
@@ -44,10 +43,10 @@ SOURCES=main.c	\
       	tasks.c   \
       	port.c	\
 	heap_1.c \
-	myio.c	\
+	basic_io.c	\
 	syscalls.c \
 	assert.c	\
-	gpio_set.c	\
+	gpio.c	\
 	locks.c
 
 OBJS=${SOURCES:.c=.o}

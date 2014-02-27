@@ -110,8 +110,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "mmap.h"
-#include "myio.h"
-#include "gpio_set.h"
+#include "basic_io.h"
+#include "gpio.h"
 #include "locks.h"
 
 void prvHardwareSetup(void);
@@ -125,8 +125,8 @@ void main( void )
 {
     prvHardwareSetup();
     /* create two tasks */
-    xTaskCreate(vTestKernel, "Task1", 512, NULL, 1, NULL);
-    xTaskCreate(vTestKernel2, "Task2", 128, NULL, 1, NULL);
+    xTaskCreate(vTestKernel, "Task1", 1024, NULL, 1, NULL);
+    xTaskCreate(vTestKernel2, "Task2", 512, NULL, 1, NULL);
 
 	/* Start the scheduler running the tasks and co-routines just created. */
 	vTaskStartScheduler();
@@ -139,27 +139,29 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
-    char line[80];
+    //char line[80];
     while (1) {
         // generate an interrupt pulse which lasts for 10ms
-        myprintf("Please type whatever you want.\r\n");
-        myscanf("%s", line);
-        myprintf("You typed: %s\r\n", line);
+        term_printf("Task 1 is running.\r\n");
+        //term_scanf("%[^\r\n]s", line);
+        //term_printf("%s\r\n", line);
+        vTaskDelay(40000 / portTICK_RATE_MS);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
     while (1) {
-        vTaskDelay(80000 / portTICK_RATE_MS);
+        //term_printf("Task 2 is running.\r\n");
+        vTaskDelay(40000 / portTICK_RATE_MS);
     }
 }
 
 void prvHardwareSetup(void) {
+    // set GPIO direction
+    init_gpio();
     // create mutex and semaphore
     vSemaphoreCreateBinary(xBinarySemaphore);
     xMutex = xSemaphoreCreateMutex();
     xSemaphoreTake(xBinarySemaphore, 0);
-    // set GPIO direction
-    init_gpio();
 }

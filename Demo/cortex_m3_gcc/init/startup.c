@@ -1,3 +1,5 @@
+#include "../locks.h"
+
 //*****************************************************************************
 //
 // startup.c - Boot code for Ferrari testboard.
@@ -14,7 +16,7 @@ void FaultISR(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler( void );
-extern void vInterruptHandler(void);
+void vACKInterruptHandler(void);
 
 //*****************************************************************************
 //
@@ -58,8 +60,8 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     xPortPendSVHandler,                     // The PendSV handler
     xPortSysTickHandler,                    // The SysTick handler
-    vInterruptHandler,                      // IRQ0 handler
-    vInterruptHandler                       // IRQ1 handler
+    vACKInterruptHandler,                      // IRQ0 handler
+    vACKInterruptHandler                       // IRQ1 handler
 };
 
 //*****************************************************************************
@@ -151,4 +153,18 @@ FaultISR(void)
     while(1)
     {
     }
+}
+
+
+//************************************************************************
+//
+// This is the code that gets called when the processor receives an
+// acknowledge interrupt. This handler then wakes up tasks waiting for this
+// acknowledge signal by releasing a binary semaphore.
+//
+//************************************************************************
+void vACKInterruptHandler(void) {
+    portBASE_TYPE xHigherPriorityTasksWoken = pdFALSE;
+    xSemaphoreGiveFromISR(xBinarySemaphore, &xHigherPriorityTasksWoken);
+    portEND_SWITCHING_ISR(xHigherPriorityTasksWoken);
 }

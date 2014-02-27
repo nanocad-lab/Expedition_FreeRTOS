@@ -85,7 +85,9 @@
 #define configTICK_RATE_HZ			    ( ( portTickType ) 1000 )
 #define configMAX_PRIORITIES            5
 #define configMINIMAL_STACK_SIZE	    ( ( unsigned short ) 128 )
-#define configTOTAL_HEAP_SIZE		    ( ( size_t ) ( 102400 ) )
+// set TOTAL_HEAP_SIZE cautiously. Otherwise the malloc function may not
+// work
+#define configTOTAL_HEAP_SIZE		    ( ( size_t ) ( 25600 ) )
 #define configMAX_TASK_NAME_LEN		    ( 10 )
 #define configUSE_TRACE_FACILITY	    0
 #define configUSE_16_BIT_TICKS		    0
@@ -138,8 +140,8 @@ to exclude the API function. */
 #define INCLUDE_vTaskPrioritySet		0
 #define INCLUDE_uxTaskPriorityGet		0
 #define INCLUDE_vTaskDelete				0
-#define INCLUDE_vTaskSuspend            0
-#define INCLUDE_xResumeFromISR          0
+#define INCLUDE_vTaskSuspend            1
+#define INCLUDE_xResumeFromISR          1
 #define INCLUDE_vTaskDelayUntil			0
 #define INCLUDE_vTaskDelay				1
 #define INCLUDE_xTaskGetSchedulerState  0

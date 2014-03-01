@@ -47,7 +47,8 @@ SOURCES=main.c	\
 	syscalls.c \
 	assert.c	\
 	gpio.c	\
-	locks.c
+	locks.c	\
+	sensor.c
 
 OBJS=${SOURCES:.c=.o}
 

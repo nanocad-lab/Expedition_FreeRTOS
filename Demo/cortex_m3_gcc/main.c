@@ -113,6 +113,7 @@
 #include "basic_io.h"
 #include "gpio.h"
 #include "locks.h"
+#include "sensor.h"
 
 void prvHardwareSetup(void);
 /* Task functions */
@@ -139,12 +140,15 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
-    //char line[80];
+    term_printf("Begin to read oxide sensor.\r\n");
+    term_printf("Oxide sensor is: %d.\r\n", sensor_read(OXIDE_CLK, 0));
+    term_printf("Begin to read PMOS sensor.\r\n");
+    term_printf("PMOS sensor is: %d.\r\n", sensor_read(PMOS_CLK, 0));
+    term_printf("Begin to read NMOS sensor.\r\n");
+    term_printf("NMOS sensor is: %d.\r\n", sensor_read(NMOS_CLK, 0));
+    term_printf("Begin to read TEMP sensor.\r\n");
+    term_printf("TEMP sensor is: %d.\r\n", sensor_read(TEMP_CLK, 0));
     while (1) {
-        // generate an interrupt pulse which lasts for 10ms
-        term_printf("Task 1 is running.\r\n");
-        //term_scanf("%[^\r\n]s", line);
-        //term_printf("%s\r\n", line);
         vTaskDelay(40000 / portTICK_RATE_MS);
     }
 }
@@ -162,4 +166,6 @@ void prvHardwareSetup(void) {
     init_gpio();
     // create mutex and semaphore
     init_locks();
+    // enable interrupt for sensors
+    init_sensor();
 }

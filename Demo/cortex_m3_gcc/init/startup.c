@@ -17,6 +17,8 @@ extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler( void );
 void vACKInterruptHandler(void);
+void vCount_ISR(void);
+void vDDRO_ISR(void);
 
 //*****************************************************************************
 //
@@ -61,7 +63,39 @@ void (* const g_pfnVectors[])(void) =
     xPortPendSVHandler,                     // The PendSV handler
     xPortSysTickHandler,                    // The SysTick handler
     vACKInterruptHandler,                      // IRQ0 handler
-    vACKInterruptHandler                       // IRQ1 handler
+    vACKInterruptHandler,                       // IRQ1 handler
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    0, 
+    vCount_ISR,
+    vDDRO_ISR
 };
 
 //*****************************************************************************
@@ -166,6 +200,24 @@ FaultISR(void)
 void vACKInterruptHandler(void) {
     portBASE_TYPE xHigherPriorityTasksWoken = pdFALSE;
     xSemaphoreGiveFromISR(xPrintACK_BinarySemphr, \
+            &xHigherPriorityTasksWoken);
+    portEND_SWITCHING_ISR(xHigherPriorityTasksWoken);
+}
+
+void vCount_ISR(void) {
+    panic("Enter vCountISR.\r\n");
+}
+
+//************************************************************************
+//
+// This is the code that gets called when the processor receives an
+// ddro done interrupt. This handler then wakes up tasks waiting for this
+// signal by releasing a binary semaphore.
+//
+//************************************************************************
+void vDDRO_ISR(void) {
+    portBASE_TYPE xHigherPriorityTasksWoken = pdFALSE;
+    xSemaphoreGiveFromISR(xDDRO_BinarySemphr, \
             &xHigherPriorityTasksWoken);
     portEND_SWITCHING_ISR(xHigherPriorityTasksWoken);
 }

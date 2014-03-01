@@ -13,8 +13,6 @@ static union byte_chunk_union {
 } byte_chunk;
 
 static char out_line[BUF_SIZE];
-extern xSemaphoreHandle xMutex;
-extern xSemaphoreHandle xBinarySemaphore;
 
 // retargeted stdio functions
 // This function is not thread-safe. It can only be called after acquiring
@@ -58,7 +56,7 @@ int term_printf(const char *format, ...) {
 
     len = impl_write(format, args);
     // wait for acknowledge signal from mbed
-    xSemaphoreTake(xBinarySemaphore, portMAX_DELAY);
+    xSemaphoreTake(xPrintACK_BinarySemphr, portMAX_DELAY);
 
     va_end(args);
     // Release a mutex lock
@@ -76,7 +74,7 @@ int term_scanf(const char *format, ...) {
     *addr = SCAN_REQ;
     send_req(); 
     // wait for acknowledge signal from mbed
-    xSemaphoreTake(xBinarySemaphore, portMAX_DELAY);
+    xSemaphoreTake(xScanACK_BinarySemphr, portMAX_DELAY);
 
     // read from ram buffer
     va_list args;

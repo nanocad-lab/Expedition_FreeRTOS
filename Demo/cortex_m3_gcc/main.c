@@ -161,7 +161,5 @@ void prvHardwareSetup(void) {
     // set GPIO direction
     init_gpio();
     // create mutex and semaphore
-    vSemaphoreCreateBinary(xBinarySemaphore);
-    xMutex = xSemaphoreCreateMutex();
-    xSemaphoreTake(xBinarySemaphore, 0);
+    init_locks();
 }

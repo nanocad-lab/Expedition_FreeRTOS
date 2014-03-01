@@ -165,6 +165,7 @@ FaultISR(void)
 //************************************************************************
 void vACKInterruptHandler(void) {
     portBASE_TYPE xHigherPriorityTasksWoken = pdFALSE;
-    xSemaphoreGiveFromISR(xBinarySemaphore, &xHigherPriorityTasksWoken);
+    xSemaphoreGiveFromISR(xPrintACK_BinarySemphr, \
+            &xHigherPriorityTasksWoken);
     portEND_SWITCHING_ISR(xHigherPriorityTasksWoken);
 }

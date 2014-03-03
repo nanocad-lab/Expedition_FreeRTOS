@@ -40,7 +40,7 @@ static int impl_write(const char *format, va_list args) {
     } while (*str && addr < WRITEBUF_END);
     // write to IO_TYPE
     addr = IO_TYPE;
-    *addr = PRINT_REQ;
+    *addr = TERM_PRINT_REQ;
     // send a request signal to mbed
     send_req();
     return len;
@@ -49,7 +49,7 @@ static int impl_write(const char *format, va_list args) {
 int term_printf(const char *format, ...) {
     int len;
     // acquire a mutex
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    xSemaphoreTake(xPrint_Mutex, portMAX_DELAY);
 
     va_list args;
     va_start(args, format);
@@ -60,18 +60,18 @@ int term_printf(const char *format, ...) {
 
     va_end(args);
     // Release a mutex lock
-    xSemaphoreGive(xMutex);
+    xSemaphoreGive(xPrint_Mutex);
     return len;
 }
 
 int term_scanf(const char *format, ...) {
     int len;
     // acquire a mutex
-    xSemaphoreTake(xMutex, portMAX_DELAY);
+    xSemaphoreTake(xScan_Mutex, portMAX_DELAY);
    
     // Write IO_TYPE and send a scan request signal to mbed
     volatile unsigned long *addr = IO_TYPE;
-    *addr = SCAN_REQ;
+    *addr = TERM_SCAN_REQ;
     send_req(); 
     // wait for acknowledge signal from mbed
     xSemaphoreTake(xScanACK_BinarySemphr, portMAX_DELAY);
@@ -79,12 +79,12 @@ int term_scanf(const char *format, ...) {
     // read from ram buffer
     va_list args;
     va_start(args, format);
-    volatile char *str = (char *)WRITEBUF_BEGIN;
+    volatile char *str = (char *)READBUF_BEGIN;
     len = vsscanf(str, format, args);
 
     va_end(args);
     // Release mutex
-    xSemaphoreGive(xMutex);
+    xSemaphoreGive(xScan_Mutex);
     
     return len;
 }

@@ -1,4 +1,5 @@
 #include "../locks.h"
+#include "mmap.h"
 
 //*****************************************************************************
 //
@@ -16,7 +17,7 @@ void FaultISR(void);
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
 extern void vPortSVCHandler( void );
-void vACKInterruptHandler(void);
+void vAcknowledge_ISR(void);
 void vCount_ISR(void);
 void vDDRO_ISR(void);
 
@@ -62,8 +63,8 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     xPortPendSVHandler,                     // The PendSV handler
     xPortSysTickHandler,                    // The SysTick handler
-    vACKInterruptHandler,                      // IRQ0 handler
-    vACKInterruptHandler,                       // IRQ1 handler
+    vAcknowledge_ISR,                      // IRQ0 handler
+    vAcknowledge_ISR,                       // IRQ1 handler
     0, 
     0, 
     0, 
@@ -197,9 +198,24 @@ FaultISR(void)
 // acknowledge signal by releasing a binary semaphore.
 //
 //************************************************************************
-void vACKInterruptHandler(void) {
+void vAcknowledge_ISR(void) {
+    volatile unsigned long *ack_type = ACK_TYPE;
+    unsigned long type = *ack_type;
+    xSemaphoreHandle xBinarySemaphore;
+    switch(type) {
+    case PRINT_ACK:
+        // print acknowledgement
+        xBinarySemaphore = xPrintACK_BinarySemphr;
+        break;
+    case SCAN_ACK:
+        // scan acknowledgement     
+        xBinarySemaphore = xScanACK_BinarySemphr;
+        break;
+    default:
+        panic("Unsupported ack type: %u.\r\n", type);
+    }
     portBASE_TYPE xHigherPriorityTasksWoken = pdFALSE;
-    xSemaphoreGiveFromISR(xPrintACK_BinarySemphr, \
+    xSemaphoreGiveFromISR(xBinarySemaphore, \
             &xHigherPriorityTasksWoken);
     portEND_SWITCHING_ISR(xHigherPriorityTasksWoken);
 }

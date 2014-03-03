@@ -6,13 +6,14 @@
 
 // binary semaphores to synchronize tasks
 extern xSemaphoreHandle xPrintACK_BinarySemphr;
+extern xSemaphoreHandle xScanACK_BinarySemphr;
 extern xSemaphoreHandle xDDRO_BinarySemphr;
 
 // mutexes to lock resource
-extern xSemaphoreHandle xMutex;
+extern xSemaphoreHandle xPrint_Mutex;
+extern xSemaphoreHandle xScan_Mutex;
 extern xSemaphoreHandle xDDRO_Mutex;
 
-#define xScanACK_BinarySemphr   ( xPrintACK_BinarySemphr )
 
 extern void init_locks(void);
 

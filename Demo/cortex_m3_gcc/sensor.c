@@ -14,12 +14,14 @@
 
 // enable interrupts and SET INTERRUPT PRIORITY
 void init_sensor(void) {
-    volatile unsigned long *sensor_intr = 0xE000E104;
+    volatile unsigned long *sensor_intr = \
+            (volatile unsigned long *)0xE000E104;
     *sensor_intr = 0x3;     // enable IRQ32 and IRQ33
     // WARNING: INTERRUPT PRIORITY LEVEL MUSH BE LESS THAN
     // or equal to configMAX_SYSCALL_INTERRUPT_PRIORITY;
     // set priority level for IRQ33
-    volatile unsigned char *sensor_intr_priority = 0xE000E421;
+    volatile unsigned char *sensor_intr_priority = \
+            (volatile unsigned char *)0xE000E421;
     *sensor_intr_priority = configMAX_SYSCALL_INTERRUPT_PRIORITY;
 }
 

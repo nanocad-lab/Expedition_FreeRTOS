@@ -12,9 +12,14 @@
 // write to this address to indicate whether it is a print req or scan req
 #define IO_TYPE         ( (volatile unsigned long *)0x2400017C )
 #define ACK_TYPE        ( (volatile unsigned long *)0x240001FC )
+
 #define TERM_PRINT_REQ       ( 0UL )
 #define TERM_SCAN_REQ        ( 1UL )
+#define INET_PRINT_REQ       ( 2UL )
+#define INET_SCAN_REQ        ( 3UL )
+
 #define PRINT_ACK  ( 0UL )
 #define SCAN_ACK   ( 1UL )
+#define IO_TYPE_ACK ( 2UL )
 
 #endif

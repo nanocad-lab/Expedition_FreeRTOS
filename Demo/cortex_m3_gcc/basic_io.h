@@ -3,5 +3,7 @@
 
 extern int term_printf(const char *format, ...);
 extern int term_scanf(const char *format, ...);
+extern int inet_printf(const char *format, ...);
+extern int inet_scanf(const char *format, ...);
 extern void panic(const char *format, ...);
 #endif

@@ -13,7 +13,6 @@ static union byte_chunk_union {
 } byte_chunk;
 
 static char out_line[BUF_SIZE];
-
 // retargeted stdio functions
 // This function is not thread-safe. It can only be called after acquiring
 // a mutex lock.
@@ -38,15 +37,11 @@ static int impl_write(const char *format, va_list args) {
         }
         *addr++ = byte_chunk.word;
     } while (*str && addr < WRITEBUF_END);
-    // write to IO_TYPE
-    addr = IO_TYPE;
-    *addr = TERM_PRINT_REQ;
-    // send a request signal to mbed
-    send_req();
     return len;
 }
 
 int term_printf(const char *format, ...) {
+    volatile unsigned long *addr;
     int len;
     // acquire a mutex
     xSemaphoreTake(xPrint_Mutex, portMAX_DELAY);
@@ -55,6 +50,22 @@ int term_printf(const char *format, ...) {
     va_start(args, format);
 
     len = impl_write(format, args);
+
+    // IO_TYPE is in critical section, need mutex to protect it.
+    //xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
+    // write to IO_TYPE
+    addr = IO_TYPE;
+    *addr = TERM_PRINT_REQ;
+    // send a request signal to mbed
+    send_req();
+
+    // use a spin lock to make sure mbed read addr properly
+    /*
+    while (*addr != IO_TYPE_ACK)
+        ;
+    xSemaphoreGive(xIOTYPE_Mutex);
+    */
+
     // wait for acknowledge signal from mbed
     xSemaphoreTake(xPrintACK_BinarySemphr, portMAX_DELAY);
 
@@ -65,14 +76,89 @@ int term_printf(const char *format, ...) {
 }
 
 int term_scanf(const char *format, ...) {
+    volatile unsigned long *addr;
     int len;
     // acquire a mutex
     xSemaphoreTake(xScan_Mutex, portMAX_DELAY);
-   
-    // Write IO_TYPE and send a scan request signal to mbed
-    volatile unsigned long *addr = IO_TYPE;
+
+    // IO_TYPE is in critical section, need mutex to protect it.
+    xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
+    // write to IO_TYPE
+    addr = IO_TYPE;
     *addr = TERM_SCAN_REQ;
-    send_req(); 
+    // send a request signal to mbed
+    send_req();
+    // use a spin lock to make sure mbed read addr properly
+    while (*addr != IO_TYPE_ACK)
+        ;
+    xSemaphoreGive(xIOTYPE_Mutex);
+   
+    // wait for acknowledge signal from mbed
+    xSemaphoreTake(xScanACK_BinarySemphr, portMAX_DELAY);
+
+    // read from ram buffer
+    va_list args;
+    va_start(args, format);
+    volatile char *str = (char *)READBUF_BEGIN;
+    len = vsscanf(str, format, args);
+
+    va_end(args);
+    // Release mutex
+    xSemaphoreGive(xScan_Mutex);
+    
+    return len;
+}
+
+int inet_printf(const char *format, ...) {
+    volatile unsigned long *addr;
+    int len;
+    // acquire a mutex
+    xSemaphoreTake(xPrint_Mutex, portMAX_DELAY);
+
+    va_list args;
+    va_start(args, format);
+
+    len = impl_write(format, args);
+
+    // IO_TYPE is in critical section, need mutex to protect it.
+    xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
+    // write to IO_TYPE
+    addr = IO_TYPE;
+    *addr = INET_PRINT_REQ;
+    // send a request signal to mbed
+    send_req();
+    // use a spin lock to make sure mbed read addr properly
+    while (*addr != IO_TYPE_ACK)
+        ;
+    xSemaphoreGive(xIOTYPE_Mutex);
+
+    // wait for acknowledge signal from mbed
+    xSemaphoreTake(xPrintACK_BinarySemphr, portMAX_DELAY);
+
+    va_end(args);
+    // Release a mutex lock
+    xSemaphoreGive(xPrint_Mutex);
+    return len;
+}
+
+int inet_scanf(const char *format, ...) {
+    volatile unsigned long *addr;
+    int len;
+    // acquire a mutex
+    xSemaphoreTake(xScan_Mutex, portMAX_DELAY);
+
+    // IO_TYPE is in critical section, need mutex to protect it.
+    xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
+    // write to IO_TYPE
+    addr = IO_TYPE;
+    *addr = INET_SCAN_REQ;
+    // send a request signal to mbed
+    send_req();
+    // use a spin lock to make sure mbed read addr properly
+    while (*addr != IO_TYPE_ACK)
+        ;
+    xSemaphoreGive(xIOTYPE_Mutex);
+   
     // wait for acknowledge signal from mbed
     xSemaphoreTake(xScanACK_BinarySemphr, portMAX_DELAY);
 

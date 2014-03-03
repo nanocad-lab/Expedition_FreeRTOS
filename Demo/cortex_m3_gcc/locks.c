@@ -8,6 +8,7 @@ xSemaphoreHandle xDDRO_BinarySemphr;
 xSemaphoreHandle xPrint_Mutex;
 xSemaphoreHandle xScan_Mutex;
 xSemaphoreHandle xDDRO_Mutex;
+xSemaphoreHandle xIOTYPE_Mutex;
 
 void init_locks(void) {
     // init binary semaphores
@@ -24,4 +25,5 @@ void init_locks(void) {
     xPrint_Mutex = xSemaphoreCreateMutex();
     xScan_Mutex = xSemaphoreCreateMutex();
     xDDRO_Mutex = xSemaphoreCreateMutex();
+    xIOTYPE_Mutex = xSemaphoreCreateMutex();
 }

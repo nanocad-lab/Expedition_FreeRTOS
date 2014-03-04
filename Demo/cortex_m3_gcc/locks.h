@@ -13,7 +13,7 @@ extern xSemaphoreHandle xDDRO_BinarySemphr;
 extern xSemaphoreHandle xPrint_Mutex;
 extern xSemaphoreHandle xScan_Mutex;
 extern xSemaphoreHandle xDDRO_Mutex;
-extern xSemaphoreHandle xIOTYPE_Mutex;
+extern xSemaphoreHandle xREQ_Mutex;
 
 
 extern void init_locks(void);

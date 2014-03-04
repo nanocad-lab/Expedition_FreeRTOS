@@ -17,6 +17,7 @@
 #define TERM_SCAN_REQ        ( 1UL )
 #define INET_PRINT_REQ       ( 2UL )
 #define INET_SCAN_REQ        ( 3UL )
+#define PANIC_REQ            ( 15UL )
 
 #define PRINT_ACK  ( 0UL )
 #define SCAN_ACK   ( 1UL )

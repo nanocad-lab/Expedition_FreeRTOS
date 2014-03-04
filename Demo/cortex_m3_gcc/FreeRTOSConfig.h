@@ -87,7 +87,7 @@
 #define configMINIMAL_STACK_SIZE	    ( ( unsigned short ) 128 )
 // set TOTAL_HEAP_SIZE cautiously. Otherwise the malloc function may not
 // work
-#define configTOTAL_HEAP_SIZE		    ( ( size_t ) ( 25600 ) )
+#define configTOTAL_HEAP_SIZE		    ( ( size_t ) ( 81920 ) )    // set this wisely, the overall size for data memory is 176KB
 #define configMAX_TASK_NAME_LEN		    ( 10 )
 #define configUSE_TRACE_FACILITY	    0
 #define configUSE_16_BIT_TICKS		    0

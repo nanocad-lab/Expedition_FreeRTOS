@@ -25,7 +25,7 @@ void init_sensor(void) {
     *sensor_intr_priority = configMAX_SYSCALL_INTERRUPT_PRIORITY;
 }
 
-long sensor_read(char type, char id) {
+long sensor_read(long type, long id) {
     // since ddro is shared resource, we need mutex to protect it.
     xSemaphoreTake(xDDRO_Mutex, portMAX_DELAY);
 
@@ -41,7 +41,7 @@ long sensor_read(char type, char id) {
         return -1;
     }
     volatile unsigned long *enable = 0x0;
-    char index = type;
+    long index = type;
     if (type == SYN_DDRO) {
         enable = SYN_EN;
         *enable = 1 << id;

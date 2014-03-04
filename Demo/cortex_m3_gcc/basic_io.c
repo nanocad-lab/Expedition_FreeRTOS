@@ -13,6 +13,7 @@ static union byte_chunk_union {
 } byte_chunk;
 
 static char out_line[BUF_SIZE];
+static char in_line[BUF_SIZE];
 // retargeted stdio functions
 // This function is not thread-safe. It can only be called after acquiring
 // a mutex lock.
@@ -28,7 +29,7 @@ if (req_type != PANIC_REQ) {
     xSemaphoreTake(xPrint_Mutex, portMAX_DELAY);
 }
   //{
-        vsnprintf(out_line, BUF_SIZE, format, args);
+        len = vsnprintf(out_line, BUF_SIZE, format, args);
 
         addr = WRITEBUF_BEGIN;
         str = out_line;
@@ -43,7 +44,9 @@ if (req_type != PANIC_REQ) {
             }
             *addr++ = byte_chunk.word;
         } while (*str && addr < WRITEBUF_END);
-
+        // add trailing \0
+        if (addr < WRITEBUF_END)
+            *addr = 0x0;
         // since IO_TYPE is in critical section, we need a lock to protect it.
         xSemaphoreTake(xREQ_Mutex, portMAX_DELAY);
         {
@@ -66,7 +69,7 @@ if (req_type != PANIC_REQ) {
     return len;
 }
 
-static int impl_read(unsigned long req_type, const char *format, va_list args) {
+static int impl_read(unsigned long req_type, char *buffer, size_t size) {
     volatile unsigned long *addr;
     char *str;
     int len;
@@ -85,10 +88,15 @@ static int impl_read(unsigned long req_type, const char *format, va_list args) {
 
         // wait for acknowledge signal from mbed
         xSemaphoreTake(xScanACK_BinarySemphr, portMAX_DELAY);
-
+        
         // read from ram buffer
         volatile char *str = (char *)READBUF_BEGIN;
-        len = vsscanf(str, format, args);
+        int i = 0;
+        while (*str && i < size - 1) {
+            buffer[i++] = *str++;
+        }
+        buffer[i] = '\0';
+        //len = vsscanf(in_line, format, args);
     }
     // Release a mutex lock
     xSemaphoreGive(xScan_Mutex);
@@ -108,14 +116,16 @@ int term_printf(const char *format, ...) {
     return len;
 }
 
-int term_scanf(const char *format, ...) {
+/* I should have implemented term_scanf and inet_scanf just like scanf in 
+ * libc, but my implementation needs vsscanf which is problematic in this demo.
+ * Calling vsscanf would result in a hard fault. 
+ *
+ * So the user has to read in a string firstly and then parse the string
+ * by themselves.
+ */
+int term_gets(char *str, size_t size) {
     int len;
-    va_list args;
-
-    va_start(args, format);
-    len = impl_read(TERM_SCAN_REQ, format, args);
-    va_end(args);
-    
+    len = impl_read(TERM_SCAN_REQ, str, size);
     return len;
 }
 
@@ -131,14 +141,9 @@ int inet_printf(const char *format, ...) {
 }
 
 
-int inet_scanf(const char *format, ...) {
+int inet_gets(char *str, size_t size) {
     int len;
-    va_list args;
-
-    va_start(args, format);
-    len = impl_read(INET_SCAN_REQ, format, args);
-    va_end(args);
-    
+    len = impl_read(INET_SCAN_REQ, str, size);
     return len;
 }
 

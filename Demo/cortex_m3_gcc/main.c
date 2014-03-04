@@ -140,9 +140,13 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
+    char line[BUF_SIZE];
+    long type, id;
     while (1) {
-        term_printf("Task 1 is running.\r\n");
-        vTaskDelay(3000 / portTICK_RATE_MS);
+        inet_printf("Input type and id for sensor reading.\r\n");
+        inet_gets(line, BUF_SIZE);
+        sscanf(line, "%d %d", &type, &id);
+        term_printf("sensor reading is: %d\r\n", sensor_read(type, id));
     }
 }
 

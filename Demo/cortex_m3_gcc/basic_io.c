@@ -16,7 +16,8 @@ static char out_line[BUF_SIZE];
 // retargeted stdio functions
 // This function is not thread-safe. It can only be called after acquiring
 // a mutex lock.
-static int impl_write(const char *format, va_list args) {
+static int impl_write(unsigned long req_type, const char *format, \
+        va_list args) {
     volatile unsigned long *addr;
     char *str;
     int i;
@@ -37,11 +38,16 @@ static int impl_write(const char *format, va_list args) {
         }
         *addr++ = byte_chunk.word;
     } while (*str && addr < WRITEBUF_END);
+    // send a request signal to mbed
+    addr = IO_TYPE;
+    *addr = req_type;
+    // send a request signal to mbed
+    send_req();
+
     return len;
 }
 
 int term_printf(const char *format, ...) {
-    volatile unsigned long *addr;
     int len;
     // acquire a mutex
     xSemaphoreTake(xPrint_Mutex, portMAX_DELAY);
@@ -49,22 +55,7 @@ int term_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    len = impl_write(format, args);
-
-    // IO_TYPE is in critical section, need mutex to protect it.
-    //xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
-    // write to IO_TYPE
-    addr = IO_TYPE;
-    *addr = TERM_PRINT_REQ;
-    // send a request signal to mbed
-    send_req();
-
-    // use a spin lock to make sure mbed read addr properly
-    /*
-    while (*addr != IO_TYPE_ACK)
-        ;
-    xSemaphoreGive(xIOTYPE_Mutex);
-    */
+    len = impl_write(TERM_PRINT_REQ, format, args);
 
     // wait for acknowledge signal from mbed
     xSemaphoreTake(xPrintACK_BinarySemphr, portMAX_DELAY);
@@ -118,7 +109,7 @@ int inet_printf(const char *format, ...) {
     va_list args;
     va_start(args, format);
 
-    len = impl_write(format, args);
+    len = impl_write(INET_PRINT_REQ, format, args);
 
     // IO_TYPE is in critical section, need mutex to protect it.
     xSemaphoreTake(xIOTYPE_Mutex, portMAX_DELAY);
@@ -183,7 +174,7 @@ void panic(const char *format, ...) {
     va_list args;
 
     va_start(args, format);
-    impl_write(format, args);
+    impl_write(TERM_PRINT_REQ, format, args);
     va_end(args);
 
     while (1)

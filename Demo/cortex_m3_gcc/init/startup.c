@@ -199,7 +199,6 @@ FaultISR(void)
 //
 //************************************************************************
 void vAcknowledge_ISR(void) {
-    panic("Enter acknowledge ISR.\r\n");
     volatile unsigned long *ack_type = ACK_TYPE;
     unsigned long type = *ack_type;
     xSemaphoreHandle xBinarySemaphore;

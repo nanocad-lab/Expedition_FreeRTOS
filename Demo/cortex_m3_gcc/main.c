@@ -140,27 +140,17 @@ void main( void )
 
 void vTestKernel(void *pvAddress)
 {
-    /*
-    term_printf("Begin to read oxide sensor.\r\n");
-    term_printf("Oxide sensor is: %d.\r\n", sensor_read(OXIDE_CLK, 0));
-    term_printf("Begin to read PMOS sensor.\r\n");
-    term_printf("PMOS sensor is: %d.\r\n", sensor_read(PMOS_CLK, 0));
-    term_printf("Begin to read NMOS sensor.\r\n");
-    term_printf("NMOS sensor is: %d.\r\n", sensor_read(NMOS_CLK, 0));
-    term_printf("Begin to read TEMP sensor.\r\n");
-    term_printf("TEMP sensor is: %d.\r\n", sensor_read(TEMP_CLK, 0));
-    */
     while (1) {
         term_printf("Task 1 is running.\r\n");
-        vTaskDelay(40000 / portTICK_RATE_MS);
+        vTaskDelay(3000 / portTICK_RATE_MS);
     }
 }
 
 void vTestKernel2(void *pvAddress)
 {
     while (1) {
-        //term_printf("Task 2 is running.\r\n");
-        vTaskDelay(40000 / portTICK_RATE_MS);
+        term_printf("Task 2 is running.\r\n");
+        vTaskDelay(6000 / portTICK_RATE_MS);
     }
 }
 
